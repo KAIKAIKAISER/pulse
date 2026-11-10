@@ -182,10 +182,12 @@ std::wstring AppPrefs::ToJson() const {
     std::wstring escaped_image;
     std::wstring escaped_language;
     std::wstring escaped_home;
+    std::wstring escaped_font_family;
     pulse::json::Escape(window_effect, escaped_effect);
     pulse::json::Escape(home_folder, escaped_home);
     pulse::json::Escape(background_image, escaped_image);
     pulse::json::Escape(language, escaped_language);
+    pulse::json::Escape(ui_font_family, escaped_font_family);
     std::wstring out = L"{\n  \"version\":4,\n  \"launch_on_startup\":";
     out += launch_on_startup ? L"true" : L"false";
     out += L",\n  \"keep_running_on_close\":";
@@ -309,7 +311,7 @@ std::wstring AppPrefs::ToJson() const {
     out += L",\n  \"ui_font_scale\":";
     out += std::to_wstring(NormalizeUiFontScale(ui_font_scale));
     out += L",\n  \"ui_font_family\":\"";
-    out += pulse::json::Escape(ui_font_family);
+    out += escaped_font_family;
     out += L"\"";
     out += L",\n  \"show_hidden_files\":";
     out += show_hidden_files ? L"true" : L"false";
