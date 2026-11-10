@@ -41,7 +41,7 @@ const SetDef kSettingDefs[] = {
      +[](AppState& s, int i) { s.settings.TextRendering(i); },
      {{{"auto", I::TextRenderAuto, 0}, {"sharp", I::TextRenderSharp, 1}, {"smooth", I::TextRenderSmooth, 2}}}},
     {"font_family", I::SettingsUiFont, 0, 0, -1,
-     +[](const AppState& s) -> int {
+     +[](AppState& s) -> int {
          const auto& f = s.appPrefs.ui_font_family;
          if (f == L"Segoe UI") return 1;
          if (f == L"DengXian") return 2;

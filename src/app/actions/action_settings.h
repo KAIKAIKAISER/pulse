@@ -37,7 +37,7 @@ struct SetDef {
     int toggle;                              // a switch: the click's index; -1 uses set (0 / 1)
     int (*get)(AppState&);
     void (*set)(AppState&, int);             // the choice's index (switch: 0 off, 1 on)
-    std::array<SetChoice, 4> choices;        // none: a switch
+    std::array<SetChoice, 8> choices;        // none: a switch
 };
 
 std::span<const SetDef> SettingDefs();
