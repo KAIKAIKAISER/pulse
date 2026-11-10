@@ -23,7 +23,9 @@ if (-not (Test-Path -LiteralPath $manifestPath)) { throw "Missing $label manifes
 $pack = Get-Content -LiteralPath $manifestPath -Raw | ConvertFrom-Json
 if ($pack.key -ne $Key) { throw "Unexpected $label key: $($pack.key)" }
 if ($pack.version -ne $version) { throw "$label is version $($pack.version), expected $version" }
-if ($pack.base_url -ne "https://github.com/jimmgreen/pulse/releases/download/v$version/") {
+$expectedRepo = if ($env:GITHUB_REPOSITORY) { $env:GITHUB_REPOSITORY } else { 'jimmgreen/pulse' }
+if ($pack.base_url -ne "https://github.com/$expectedRepo/releases/download/v$version/" -and
+    $pack.base_url -ne "https://github.com/jimmgreen/pulse/releases/download/v$version/") {
     throw "$label points at another release: $($pack.base_url)"
 }
 $names = @($pack.files | ForEach-Object { $_.name } | Sort-Object)

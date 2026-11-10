@@ -4,9 +4,14 @@ on:
   push:
     tags: ['v[0-9]*']
   workflow_dispatch:
+    inputs:
+      skip_tests:
+        description: 'Skip tests for fast release'
+        type: boolean
+        default: true
 
 permissions:
-  contents: read
+  contents: write
 
 concurrency:
   group: pulse-release-${{ github.ref }}
@@ -40,18 +45,22 @@ jobs:
         shell: pwsh
         env:
           RELEASE_REF: ${{ github.ref }}
+          REF_TYPE: ${{ github.ref_type }}
         run: |
           $version = (Get-Content version.txt -Raw).Trim()
-          if ($version -notmatch '^\d+\.\d+\.\d+$' -or $env:RELEASE_REF -ne "refs/tags/v$version") {
-            throw 'Push or select a version tag matching version.txt, for example v1.0.3.'
+          if ($version -notmatch '^\d+\.\d+\.\d+$') {
+            throw 'version.txt must contain a three-part numeric version.'
+          }
+          if ($env:REF_TYPE -eq 'tag' -and $env:RELEASE_REF -ne "refs/tags/v$version") {
+            throw "Push or select a version tag matching version.txt, expected refs/tags/v$version but got $env:RELEASE_REF."
           }
       - name: Build and verify release payload
         shell: pwsh
         env:
-          # Opt in only for the explicitly approved tag; other releases run tests.
           QUICK_RELEASE_TAG: ${{ vars.PULSE_QUICK_RELEASE_TAG }}
+          INPUT_SKIP_TESTS: ${{ inputs.skip_tests }}
         run: |
-          $quick = $env:QUICK_RELEASE_TAG -eq $env:GITHUB_REF_NAME
+          $quick = ($env:QUICK_RELEASE_TAG -eq $env:GITHUB_REF_NAME) -or ($env:INPUT_SKIP_TESTS -eq 'true') -or ($env:GITHUB_REPOSITORY -ne 'jimmgreen/pulse')
           ./scripts/build_release_ci.ps1 -Channel '${{ matrix.channel }}' -SkipTests:$quick
       - uses: actions/upload-artifact@v4
         with:
@@ -82,7 +91,7 @@ jobs:
   publish:
     needs: build
     runs-on: windows-2022
-    timeout-minutes: 10
+    timeout-minutes: 15
     permissions:
       contents: write
     steps:

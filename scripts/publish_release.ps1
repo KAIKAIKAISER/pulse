@@ -4,24 +4,30 @@ Set-Location (Split-Path -Parent $PSScriptRoot)
 $version = (Get-Content version.txt -Raw).Trim()
 if ($version -notmatch '^\d+\.\d+\.\d+$') { throw 'Invalid release version' }
 $tag = "v$version"
-$repository = 'jimmgreen/pulse'
+$repository = if ($env:GITHUB_REPOSITORY) { $env:GITHUB_REPOSITORY } else { 'jimmgreen/pulse' }
 $base = "https://github.com/$repository/releases/download/$tag"
 $normal = "PulseSetup-$version.exe"
 $win81 = "PulseSetup-$version-win81.exe"
 foreach ($file in @($normal, $win81)) {
     if (-not (Test-Path -LiteralPath "dist/$file")) { throw "Missing installer: $file" }
 }
-if (-not $env:PULSE_UPDATE_PRIVATE_KEY) { throw 'Configure the PULSE_UPDATE_PRIVATE_KEY Actions secret first' }
-$keyPath = Join-Path ([IO.Path]::GetTempPath()) ("pulse-sign-" + [guid]::NewGuid().ToString('N') + '.pem')
-$publicKey = (Get-Content cmake/update-public-key.txt -Raw).Trim()
-try {
-    [IO.File]::WriteAllText($keyPath, $env:PULSE_UPDATE_PRIVATE_KEY)
-    & "$PSScriptRoot/create_update_manifest.ps1" -Installer "dist/$normal" -DownloadPage "$base/$normal" `
-        -PrivateKey $keyPath -ExpectedPublicKey $publicKey -MinimumWindowsBuild 10240 -Output 'dist/update-manifest.json'
-    & "$PSScriptRoot/create_update_manifest.ps1" -Installer "dist/$win81" -DownloadPage "$base/$win81" `
-        -PrivateKey $keyPath -ExpectedPublicKey $publicKey -MinimumWindowsBuild 9600 -Output 'dist/update-manifest-win81.json'
-} finally {
-    Remove-Item -LiteralPath $keyPath -ErrorAction SilentlyContinue
+$manifestFiles = @()
+if ($env:PULSE_UPDATE_PRIVATE_KEY) {
+    $keyPath = Join-Path ([IO.Path]::GetTempPath()) ("pulse-sign-" + [guid]::NewGuid().ToString('N') + '.pem')
+    $publicKey = (Get-Content cmake/update-public-key.txt -Raw).Trim()
+    try {
+        [IO.File]::WriteAllText($keyPath, $env:PULSE_UPDATE_PRIVATE_KEY)
+        & "$PSScriptRoot/create_update_manifest.ps1" -Installer "dist/$normal" -DownloadPage "$base/$normal" `
+            -PrivateKey $keyPath -ExpectedPublicKey $publicKey -MinimumWindowsBuild 10240 -Output 'dist/update-manifest.json'
+        & "$PSScriptRoot/create_update_manifest.ps1" -Installer "dist/$win81" -DownloadPage "$base/$win81" `
+            -PrivateKey $keyPath -ExpectedPublicKey $publicKey -MinimumWindowsBuild 9600 -Output 'dist/update-manifest-win81.json'
+        if (Test-Path -LiteralPath 'dist/update-manifest.json') { $manifestFiles += 'dist/update-manifest.json' }
+        if (Test-Path -LiteralPath 'dist/update-manifest-win81.json') { $manifestFiles += 'dist/update-manifest-win81.json' }
+    } finally {
+        Remove-Item -LiteralPath $keyPath -ErrorAction SilentlyContinue
+    }
+} else {
+    Write-Host 'PULSE_UPDATE_PRIVATE_KEY not configured; skipping update manifest generation.'
 }
 $changesPath = "docs/releases/$version.md"
 $changes = if (Test-Path $changesPath) { Get-Content $changesPath -Raw } else { '修复问题并改进使用体验。' }
@@ -57,11 +63,18 @@ if ($LASTEXITCODE -eq 0) {
     if (-not ($existing | ConvertFrom-Json).isDraft) { throw 'This version is already published; increment version.txt' }
     & gh release edit $tag --repo $repository --title "Pulse $version" --notes-file $notesPath
 } else {
-    & gh release create $tag --repo $repository --verify-tag --draft --title "Pulse $version" --notes-file $notesPath
+    $createArgs = @('release', 'create', $tag, '--repo', $repository, '--draft', '--title', "Pulse $version", '--notes-file', $notesPath)
+    $targetBranch = if ($env:GITHUB_REF_NAME) { $env:GITHUB_REF_NAME } else { 'main' }
+    if ($env:GITHUB_REF_TYPE -ne 'tag') {
+        $createArgs += @('--target', $targetBranch)
+    } else {
+        $createArgs += '--verify-tag'
+    }
+    & gh @createArgs
 }
 if ($LASTEXITCODE -ne 0) { throw 'Could not prepare the release draft' }
-& gh release upload $tag --repo $repository "dist/$normal" "dist/$win81" `
-    dist/update-manifest.json dist/update-manifest-win81.json --clobber
+$initialUpload = @("dist/$normal", "dist/$win81") + $manifestFiles
+& gh release upload $tag --repo $repository @initialUpload --clobber
 if ($LASTEXITCODE -ne 0) { throw 'Could not upload release assets; release remains a draft' }
 # Enhancement packs (content search, AI): exactly the assets the catalogs in
 # both channels' pulse.exe name.
@@ -69,23 +82,33 @@ $packAssets = @()
 foreach ($key in @('content', 'ai')) {
     foreach ($channel in @('windows', 'win81')) {
         $packDir = "dist/$key-pack-$channel"
-        & "$PSScriptRoot/check_content_pack.ps1" -Key $key -PackDir $packDir
-        $pack = Get-Content -LiteralPath "$packDir/$key-pack-assets.json" -Raw | ConvertFrom-Json
-        if ($pack.channel -ne $channel -or $pack.base_url -ne "$base/") { throw "The $key pack for $channel targets another release" }
-        $packAssets += @($pack.files | ForEach-Object { Join-Path $packDir $_.asset })
+        if (Test-Path -LiteralPath $packDir) {
+            & "$PSScriptRoot/check_content_pack.ps1" -Key $key -PackDir $packDir
+            $pack = Get-Content -LiteralPath "$packDir/$key-pack-assets.json" -Raw | ConvertFrom-Json
+            if ($pack.channel -ne $channel -or ($pack.base_url -ne "$base/" -and $pack.base_url -ne "https://github.com/jimmgreen/pulse/releases/download/$tag/")) {
+                throw "The $key pack for $channel targets another release"
+            }
+            $packAssets += @($pack.files | ForEach-Object { Join-Path $packDir $_.asset })
+        }
     }
 }
-& gh release upload $tag --repo $repository @packAssets --clobber
-if ($LASTEXITCODE -ne 0) { throw 'Could not upload the enhancement packs; release remains a draft' }
-$uploaded = (& gh release view $tag --repo $repository --json assets | ConvertFrom-Json).assets
-foreach ($path in $packAssets) {
-    $item = Get-Item -LiteralPath $path
-    $match = @($uploaded | Where-Object { $_.name -eq $item.Name -and $_.size -eq $item.Length })
-    if ($match.Count -ne 1) { throw "Enhancement pack asset missing after upload: $($item.Name)" }
+if ($packAssets.Count -gt 0) {
+    & gh release upload $tag --repo $repository @packAssets --clobber
+    if ($LASTEXITCODE -ne 0) { throw 'Could not upload the enhancement packs; release remains a draft' }
+    $uploaded = (& gh release view $tag --repo $repository --json assets | ConvertFrom-Json).assets
+    foreach ($path in $packAssets) {
+        $item = Get-Item -LiteralPath $path
+        $match = @($uploaded | Where-Object { $_.name -eq $item.Name -and $_.size -eq $item.Length })
+        if ($match.Count -ne 1) { throw "Enhancement pack asset missing after upload: $($item.Name)" }
+    }
 }
-$packArgs = @('--tag', $tag, '--repository', $repository, '--asset-directory', 'dist/preview-packs')
-if ($env:PULSE_PREVIEW_PACK_SOURCE_TAG) { $packArgs += @('--source-tag', $env:PULSE_PREVIEW_PACK_SOURCE_TAG) }
-& python "$PSScriptRoot/ensure_release_packs.py" @packArgs
-if ($LASTEXITCODE -ne 0) { throw 'Preview pack verification failed; release remains a draft' }
+if ($repository -eq 'jimmgreen/pulse' -or $env:PULSE_ENSURE_PREVIEW_PACKS -eq '1') {
+    $packArgs = @('--tag', $tag, '--repository', $repository, '--asset-directory', 'dist/preview-packs')
+    if ($env:PULSE_PREVIEW_PACK_SOURCE_TAG) { $packArgs += @('--source-tag', $env:PULSE_PREVIEW_PACK_SOURCE_TAG) }
+    & python "$PSScriptRoot/ensure_release_packs.py" @packArgs
+    if ($LASTEXITCODE -ne 0) { throw 'Preview pack verification failed; release remains a draft' }
+} else {
+    Write-Host "Fork repository ($repository): skipping upstream preview pack replication."
+}
 & gh release edit $tag --repo $repository --draft=false --latest
 if ($LASTEXITCODE -ne 0) { throw 'Could not publish the release' }
