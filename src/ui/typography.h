@@ -6,6 +6,7 @@
 #include <dwrite_3.h>
 
 #include <cstdint>
+#include <string>
 #include <string_view>
 
 namespace pulse::ui { class Compositor; }
