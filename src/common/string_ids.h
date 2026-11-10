@@ -5158,5 +5158,15 @@
 #define IDS_SETUP_END_RETRY                                                              6436
 #define IDS_SETUP_END_CONFIRM                                                            6437
 #define IDS_SETUP_END_FAILED                                                             6438
+#define IDS_SETTINGS_UI_FONT                                                             6439
+#define IDS_SETTINGS_UI_FONT_DESC                                                        6440
+#define IDS_SETTINGS_UI_FONT_DEFAULT                                                     6441
+#define IDS_UI_FONT_SEGOE                                                                6442
+#define IDS_UI_FONT_DENGXIAN                                                             6443
+#define IDS_UI_FONT_SIMHEI                                                               6444
+#define IDS_UI_FONT_SIMSUN                                                               6445
+#define IDS_UI_FONT_KAITI                                                                6446
+#define IDS_UI_FONT_FANGSONG                                                             6447
+#define IDS_UI_FONT_CASCADIA                                                             6448
 
 #endif  // PULSE_STRING_IDS_H

@@ -5140,6 +5140,16 @@ BEGIN
     IDS_SETUP_END_RETRY "结束进程并重试"
     IDS_SETUP_END_CONFIRM "将结束列表中可核验的占用进程，未保存的内容可能丢失。请先保存工作。是否继续？"
     IDS_SETUP_END_FAILED "部分进程未能结束，请查看安装日志或手动退出后重试。"
+    IDS_SETTINGS_UI_FONT "界面字体"
+    IDS_SETTINGS_UI_FONT_DESC "设置界面显示的默认字体家族，可选择 Windows 自带中文字体或其它字体；立即生效"
+    IDS_SETTINGS_UI_FONT_DEFAULT "默认 (微软雅黑 / Microsoft YaHei UI)"
+    IDS_UI_FONT_SEGOE "Segoe UI"
+    IDS_UI_FONT_DENGXIAN "等线 (DengXian)"
+    IDS_UI_FONT_SIMHEI "黑体 (SimHei)"
+    IDS_UI_FONT_SIMSUN "宋体 (SimSun)"
+    IDS_UI_FONT_KAITI "楷体 (KaiTi)"
+    IDS_UI_FONT_FANGSONG "仿宋 (FangSong)"
+    IDS_UI_FONT_CASCADIA "Cascadia Mono"
 END
 
 LANGUAGE 0x09, 0x01
@@ -10279,6 +10289,16 @@ BEGIN
     IDS_SETUP_END_RETRY "End processes and retry"
     IDS_SETUP_END_CONFIRM "End the verified processes in this list? Unsaved work may be lost. Save your work before continuing."
     IDS_SETUP_END_FAILED "Some processes could not be ended. Check the setup log or quit them manually and retry."
+    IDS_SETTINGS_UI_FONT "Interface font"
+    IDS_SETTINGS_UI_FONT_DESC "Set the font family used for the interface; applies immediately"
+    IDS_SETTINGS_UI_FONT_DEFAULT "Default (Microsoft YaHei UI)"
+    IDS_UI_FONT_SEGOE "Segoe UI"
+    IDS_UI_FONT_DENGXIAN "DengXian"
+    IDS_UI_FONT_SIMHEI "SimHei"
+    IDS_UI_FONT_SIMSUN "SimSun"
+    IDS_UI_FONT_KAITI "KaiTi"
+    IDS_UI_FONT_FANGSONG "FangSong"
+    IDS_UI_FONT_CASCADIA "Cascadia Mono"
 END
 
 // Traditional Chinese (Taiwan), generated from the Simplified entries above.

@@ -165,11 +165,14 @@ HRESULT WINAPI Show(const PulsePickerUiConfig* config, const PulsePickerUiCallba
         struct TypographyScope {
             int scale = pulse::ui::typography::UiFontScalePercent();
             pulse::ui::typography::TextRenderMode mode = pulse::ui::typography::CurrentTextRenderMode();
+            std::wstring font = pulse::ui::typography::PreferredFontFamilyName();
             ~TypographyScope() {
+                pulse::ui::typography::SetPreferredFontFamily(font);
                 pulse::ui::typography::SetUiFontScale(scale);
                 pulse::ui::typography::SetTextRenderMode(mode);
             }
         } typography_scope;
+        pulse::ui::typography::SetPreferredFontFamily(appearance.ui_font_family);
         pulse::ui::typography::SetUiFontScale(appearance.ui_font_scale);
         pulse::ui::typography::SetTextRenderMode(static_cast<pulse::ui::typography::TextRenderMode>(appearance.text_render));
         auto request_appearance = appearance;

@@ -5165,3 +5165,13 @@ StoreCommunityEmpty	IDS_STORE_COMMUNITY_EMPTY	6435	还没有社区扩展	No comm
 SetupEndRetry	IDS_SETUP_END_RETRY	6436	结束进程并重试	End processes and retry	結束處理程序並重試
 SetupEndConfirm	IDS_SETUP_END_CONFIRM	6437	将结束列表中可核验的占用进程，未保存的内容可能丢失。请先保存工作。是否继续？	End the verified processes in this list? Unsaved work may be lost. Save your work before continuing.	將結束清單中可核驗的占用處理程序，未儲存的內容可能遺失。請先儲存工作。是否繼續？
 SetupEndFailed	IDS_SETUP_END_FAILED	6438	部分进程未能结束，请查看安装日志或手动退出后重试。	Some processes could not be ended. Check the setup log or quit them manually and retry.	部分處理程序未能結束，請查看安裝記錄或手動結束後重試。
+SettingsUiFont	IDS_SETTINGS_UI_FONT	6439	界面字体	Interface font	介面字型
+SettingsUiFontDesc	IDS_SETTINGS_UI_FONT_DESC	6440	设置界面显示的默认字体家族，可选择 Windows 自带中文字体或其它字体；立即生效	Set the font family used for the interface; applies immediately	設定介面顯示的預設字型家族；切換後立即生效
+SettingsUiFontDefault	IDS_SETTINGS_UI_FONT_DEFAULT	6441	默认 (微软雅黑 / Microsoft YaHei UI)	Default (Microsoft YaHei UI)	預設 (微軟雅黑 / Microsoft YaHei UI)
+UiFontSegoe	IDS_UI_FONT_SEGOE	6442	Segoe UI	Segoe UI	Segoe UI
+UiFontDengXian	IDS_UI_FONT_DENGXIAN	6443	等线 (DengXian)	DengXian	等線 (DengXian)
+UiFontSimHei	IDS_UI_FONT_SIMHEI	6444	黑体 (SimHei)	SimHei	黑體 (SimHei)
+UiFontSimSun	IDS_UI_FONT_SIMSUN	6445	宋体 (SimSun)	SimSun	宋體 (SimSun)
+UiFontKaiTi	IDS_UI_FONT_KAITI	6446	楷体 (KaiTi)	KaiTi	楷體 (KaiTi)
+UiFontFangSong	IDS_UI_FONT_FANGSONG	6447	仿宋 (FangSong)	FangSong	仿宋 (FangSong)
+UiFontCascadia	IDS_UI_FONT_CASCADIA	6448	Cascadia Mono	Cascadia Mono	Cascadia Mono

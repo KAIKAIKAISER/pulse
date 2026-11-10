@@ -178,7 +178,8 @@ void WindowSwitcherView::EnsureFormats(IDWriteFactory* dwrite, IDWriteTextFormat
     if (f_name_ && std::abs(format_scale_ - text_scale) < 0.001f) return;
     ReleaseFormats();
     format_scale_ = text_scale;
-    wchar_t family[128] = L"Segoe UI";
+    wchar_t family[128] = L"Microsoft YaHei UI";
+    wcsncpy_s(family, typography::PreferredTextFamily(), _TRUNCATE);
     wchar_t locale[LOCALE_NAME_MAX_LENGTH] = L"zh-cn";
     if (base) {
         base->GetFontFamilyName(family, 128);

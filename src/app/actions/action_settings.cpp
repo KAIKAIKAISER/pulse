@@ -40,6 +40,27 @@ const SetDef kSettingDefs[] = {
     {"text_rendering", I::SettingsTextRender, 0, 0, -1, SET_GET(s.appPrefs.text_render),
      +[](AppState& s, int i) { s.settings.TextRendering(i); },
      {{{"auto", I::TextRenderAuto, 0}, {"sharp", I::TextRenderSharp, 1}, {"smooth", I::TextRenderSmooth, 2}}}},
+    {"font_family", I::SettingsUiFont, 0, 0, -1,
+     +[](const AppState& s) -> int {
+         const auto& f = s.appPrefs.ui_font_family;
+         if (f == L"Segoe UI") return 1;
+         if (f == L"DengXian") return 2;
+         if (f == L"SimHei") return 3;
+         if (f == L"SimSun") return 4;
+         if (f == L"KaiTi") return 5;
+         if (f == L"FangSong") return 6;
+         if (f == L"Cascadia Mono") return 7;
+         return 0;
+     },
+     +[](AppState& s, int i) {
+         static constexpr const wchar_t* fonts[] = {
+             L"", L"Segoe UI", L"DengXian", L"SimHei", L"SimSun", L"KaiTi", L"FangSong", L"Cascadia Mono"
+         };
+         if (i >= 0 && i < static_cast<int>(std::size(fonts))) s.settings.UiFontFamily(fonts[i]);
+     },
+     {{{"default", I::SettingsUiFontDefault, 0}, {"segoe", I::UiFontSegoe, 1}, {"dengxian", I::UiFontDengXian, 2},
+       {"simhei", I::UiFontSimHei, 3}, {"simsun", I::UiFontSimSun, 4}, {"kaiti", I::UiFontKaiTi, 5},
+       {"fangsong", I::UiFontFangSong, 6}, {"cascadia", I::UiFontCascadia, 7}}}},
     {"font_size", I::SettingsUiFontSize, 0, 0, -1, SET_GET(s.appPrefs.ui_font_scale),
      +[](AppState& s, int i) { s.settings.UiFontSize(i); },
      {{{"small", I::UiFontSmall, 90}, {"default", I::UiFontDefault, 100}, {"large", I::UiFontLarge, 112}, {"larger", I::UiFontLarger, 125}}}},

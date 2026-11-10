@@ -419,7 +419,7 @@ void TextDiffWindow::RecreateFormats() {
                 mono_family = L"Cascadia Mono";
         }
     }
-    std::wstring ui_family = L"Segoe UI";
+    std::wstring ui_family = typography::PreferredTextFamily();
     wchar_t locale[LOCALE_NAME_MAX_LENGTH] = L"";
     if (IDWriteTextFormat* base = compositor_.TextFormat()) {
         const UINT32 len = base->GetFontFamilyNameLength();

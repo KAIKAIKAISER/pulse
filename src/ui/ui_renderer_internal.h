@@ -2669,7 +2669,7 @@ struct SettingsLayout {
     D2D1_RECT_F accent_slider_row[3]{}, accent_slider_cells[3][3]{};
     // 关于与诊断 › 新手提示.
     D2D1_RECT_F tips_card{};
-    D2D1_RECT_F theme_row{}, theme_tile[3]{}, effect_choice{}, language_choice{};
+    D2D1_RECT_F theme_row{}, theme_tile[3]{}, effect_choice{}, language_choice{}, ui_font_card{}, ui_font_choice{};
     D2D1_RECT_F performance_row{}, disclosure[4]{}, filename_status{};
     D2D1_RECT_F startup_lead{}, startup_overview[3]{}, startup_restore_row{}, startup_restore_button{};
     StartupDialogInfoLayout startup_dialog_info;

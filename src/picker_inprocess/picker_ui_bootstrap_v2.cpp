@@ -633,8 +633,10 @@ HRESULT ShowCore(PulsePickerUiV2Session id, const PulsePickerUiV2Config* input,
     struct TypographyScope {
         int scale = pulse::ui::typography::UiFontScalePercent();
         pulse::ui::typography::TextRenderMode mode = pulse::ui::typography::CurrentTextRenderMode();
-        ~TypographyScope() { pulse::ui::typography::SetUiFontScale(scale); pulse::ui::typography::SetTextRenderMode(mode); }
+        std::wstring font = pulse::ui::typography::PreferredFontFamilyName();
+        ~TypographyScope() { pulse::ui::typography::SetPreferredFontFamily(font); pulse::ui::typography::SetUiFontScale(scale); pulse::ui::typography::SetTextRenderMode(mode); }
     } typography;
+    pulse::ui::typography::SetPreferredFontFamily(env.appearance.ui_font_family);
     pulse::ui::typography::SetUiFontScale(env.appearance.ui_font_scale);
     pulse::ui::typography::SetTextRenderMode(static_cast<pulse::ui::typography::TextRenderMode>(env.appearance.text_render));
     auto appearance = env.appearance;

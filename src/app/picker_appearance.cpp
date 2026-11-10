@@ -72,6 +72,7 @@ PickerAppearanceSnapshot PickerAppearanceFromPrefs(const AppPrefs& prefs) {
     value.accent_follow_system = prefs.accent_follow_system;
     value.language = prefs.language;
     value.ui_font_scale = prefs.ui_font_scale;
+    value.ui_font_family = prefs.ui_font_family;
     value.text_render = prefs.text_render;
     value.row_height = prefs.row_height;
     value.selection_outline = prefs.list_selection_outline;
@@ -95,6 +96,7 @@ bool ParsePickerAppearanceJson(const std::wstring& json, PickerAppearanceSnapsho
     value.accent_follow_system = Integer(json, L"accent_follow_system", 0) != 0;
     value.language = pulse::json::ExtractString(json, L"language", L"system");
     value.ui_font_scale = Integer(json, L"ui_font_scale", 100);
+    value.ui_font_family = pulse::json::ExtractString(json, L"ui_font_family");
     value.text_render = Integer(json, L"text_render", 0);
     value.row_height = Integer(json, L"row_height", 34);
     value.selection_outline = pulse::json::ExtractBool(json, L"list_selection_outline", false);

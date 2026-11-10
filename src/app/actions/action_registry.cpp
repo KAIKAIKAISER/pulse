@@ -936,7 +936,7 @@ std::wstring SettingsDomain(int page) {
 // The settings page's own icon for each row (ui_settings_core.cpp).
 constexpr std::pair<std::string_view, const wchar_t*> kSettingGlyphs[] = {
     {"theme", L"\xE706"}, {"window_effect", L"\xE81E"}, {"text_rendering", L"\xE8D2"},
-    {"font_size", L"\xE8E9"}, {"language", L"\xE774"}, {"row_height", L"\xECE7"},
+    {"font_family", L"\xE8D2"}, {"font_size", L"\xE8E9"}, {"language", L"\xE774"}, {"row_height", L"\xECE7"},
     {"click_to_open", L"\xE8B0"}, {"name_highlight", L"\xE7E6"}, {"blank_double_click", L"\xE72B"},
     {"folders_first", L"\xE8CB"}, {"alias_mark", L"\xE8AC"}, {"tree_sticky", L"\xE840"}, {"mtime_marks", L"\xE916"},
     {"mtime_range", L"\xEC92"}, {"startup_open", L"\xE81C"}, {"new_tab_open", L"\xECCD"},

@@ -19,6 +19,8 @@ std::mutex g_fallback_mutex;
 IDWriteFactory2* g_fallback_factory = nullptr;
 IDWriteFontFallback* g_fallback = nullptr;
 bool g_fallback_traditional = false;
+std::mutex g_font_family_mutex;
+std::wstring g_preferred_font_family;
 
 bool TraditionalChinese() noexcept {
     return pulse::l10n::effective_language() == pulse::l10n::Language::ZhTW;
@@ -47,20 +49,38 @@ bool FamilyExists(IDWriteFactory2* factory, const wchar_t* family) {
 }
 
 const wchar_t* ResolveFamily(IDWriteFactory2* factory, FontRole role) {
+    if (role == FontRole::Icon) {
+        const wchar_t* const icons[] = {
+            L"Segoe Fluent Icons", L"Segoe MDL2 Assets", L"Segoe UI", nullptr};
+        for (size_t i = 0; icons[i]; ++i) {
+            if (FamilyExists(factory, icons[i])) return icons[i];
+        }
+        return L"Segoe UI";
+    }
+
+    std::wstring custom;
+    {
+        std::lock_guard lock(g_font_family_mutex);
+        custom = g_preferred_font_family;
+    }
+
+    if (!custom.empty() && custom != L"default" && custom != L"system") {
+        static thread_local wchar_t s_custom_buffer[128];
+        if (FamilyExists(factory, custom.c_str())) {
+            wcsncpy_s(s_custom_buffer, custom.c_str(), _TRUNCATE);
+            return s_custom_buffer;
+        }
+    }
+
     const bool traditional = TraditionalChinese();
     // Taiwan glyph forms; YaHei only if JhengHei is missing.
     const wchar_t* const text_tw[] = {
         L"Microsoft JhengHei UI", L"Microsoft JhengHei", L"Microsoft YaHei UI", L"Segoe UI", nullptr};
-    // Simplified Chinese uses Segoe UI Variable for Latin too; Han text
-    // reaches PingFang SC / YaHei through the fallback in BuildFallback.
-    const wchar_t* const text_en[] = {
-        L"Segoe UI Variable Text", L"Segoe UI", L"Microsoft YaHei UI",
-        L"Microsoft YaHei", nullptr};
-    const wchar_t* const display_en[] = {
-        L"Segoe UI Variable Display", L"Segoe UI Variable Text", L"Segoe UI",
-        L"Microsoft YaHei UI", L"Microsoft YaHei", nullptr};
-    const wchar_t* const icons[] = {
-        L"Segoe Fluent Icons", L"Segoe MDL2 Assets", L"Segoe UI", nullptr};
+    // Default to Windows built-in Simplified Chinese font (Microsoft YaHei UI / 微软雅黑)
+    const wchar_t* const text_zh[] = {
+        L"Microsoft YaHei UI", L"Microsoft YaHei", L"Segoe UI Variable Text", L"Segoe UI", nullptr};
+    const wchar_t* const display_zh[] = {
+        L"Microsoft YaHei UI", L"Microsoft YaHei", L"Segoe UI Variable Display", L"Segoe UI Variable Text", L"Segoe UI", nullptr};
     const wchar_t* const mono[] = {
         L"Cascadia Mono", L"Consolas", L"Microsoft YaHei UI", L"Segoe UI", nullptr};
     const wchar_t* const mono_tw[] = {
@@ -68,15 +88,14 @@ const wchar_t* ResolveFamily(IDWriteFactory2* factory, FontRole role) {
 
     const wchar_t* const* candidates = nullptr;
     switch (role) {
-    case FontRole::Display: candidates = traditional ? text_tw : display_en; break;
-    case FontRole::Icon: candidates = icons; break;
+    case FontRole::Display: candidates = traditional ? text_tw : display_zh; break;
     case FontRole::Monospace: candidates = traditional ? mono_tw : mono; break;
-    default: candidates = traditional ? text_tw : text_en; break;
+    default: candidates = traditional ? text_tw : text_zh; break;
     }
     for (size_t i = 0; candidates[i]; ++i) {
         if (FamilyExists(factory, candidates[i])) return candidates[i];
     }
-    return L"Segoe UI";
+    return L"Microsoft YaHei UI";
 }
 
 bool BuildFallback(IDWriteFactory2* factory, bool traditional, IDWriteFontFallback** fallback) {
@@ -89,11 +108,8 @@ bool BuildFallback(IDWriteFactory2* factory, bool traditional, IDWriteFontFallba
         {0x2E80, 0x303F}, {0x3400, 0x4DBF}, {0x4E00, 0x9FFF},
         {0xF900, 0xFAFF}, {0xFF00, 0xFFEF}, {0x20000, 0x2FA1F},
     };
-    // PingFang SC only when the user installed it (Pulse never ships it).
-    const bool pingfang = FamilyExists(factory, L"PingFang SC");
-    const wchar_t* simplified_pingfang[] = {L"PingFang SC", L"Microsoft YaHei UI", L"Microsoft YaHei"};
-    const wchar_t** simplified = pingfang ? simplified_pingfang : simplified_pingfang + 1;
-    const UINT32 simplified_count = pingfang ? 3u : 2u;
+    // Default to Windows built-in Simplified Chinese font (Microsoft YaHei UI / 微软雅黑)
+    const wchar_t* simplified[] = {L"Microsoft YaHei UI", L"Microsoft YaHei", L"SimSun"};
     const wchar_t* hant[] = {L"Microsoft JhengHei UI", L"Microsoft JhengHei",
                              L"Microsoft YaHei UI", L"Microsoft YaHei"};
     // Locale must be empty: a zh-CN mapping is skipped when the UI language
@@ -102,7 +118,7 @@ bool BuildFallback(IDWriteFactory2* factory, bool traditional, IDWriteFontFallba
     if (traditional)
         builder->AddMapping(cjk, ARRAYSIZE(cjk), hant, ARRAYSIZE(hant), nullptr, nullptr);
     else
-        builder->AddMapping(cjk, ARRAYSIZE(cjk), simplified, simplified_count, nullptr, nullptr);
+        builder->AddMapping(cjk, ARRAYSIZE(cjk), simplified, ARRAYSIZE(simplified), nullptr, nullptr);
 
     IDWriteFontFallback* system = nullptr;
     if (SUCCEEDED(factory->GetSystemFontFallback(&system)) && system) {
@@ -144,11 +160,34 @@ bool HasIconFont(IDWriteFactory2* factory) {
     return available;
 }
 
+void SetPreferredFontFamily(std::wstring_view family) noexcept {
+    {
+        std::lock_guard lock(g_font_family_mutex);
+        if (g_preferred_font_family == family) return;
+        g_preferred_font_family = family;
+    }
+    InvalidateCaches();
+}
+
+std::wstring PreferredFontFamilyName() noexcept {
+    std::lock_guard lock(g_font_family_mutex);
+    return g_preferred_font_family;
+}
+
 const wchar_t* PreferredTextFamily() noexcept {
+    std::wstring custom;
+    {
+        std::lock_guard lock(g_font_family_mutex);
+        custom = g_preferred_font_family;
+    }
+    static thread_local wchar_t s_preferred_buffer[128];
+    if (!custom.empty() && custom != L"default" && custom != L"system") {
+        wcsncpy_s(s_preferred_buffer, custom.c_str(), _TRUNCATE);
+        return s_preferred_buffer;
+    }
     switch (pulse::l10n::effective_language()) {
-    case pulse::l10n::Language::ZhCN: return L"Microsoft YaHei UI";
     case pulse::l10n::Language::ZhTW: return L"Microsoft JhengHei UI";
-    default: return L"Segoe UI Variable Text";
+    default: return L"Microsoft YaHei UI";
     }
 }
 
@@ -285,7 +324,7 @@ HFONT CreateEditFont(float scale, float dip) {
     if (!font) {
         font = CreateFontW(height, 0, 0, 0, FW_NORMAL, FALSE, FALSE, FALSE,
             DEFAULT_CHARSET, OUT_DEFAULT_PRECIS, CLIP_DEFAULT_PRECIS, ANTIALIASED_QUALITY,
-            DEFAULT_PITCH | FF_DONTCARE, L"Segoe UI");
+            DEFAULT_PITCH | FF_DONTCARE, L"Microsoft YaHei UI");
     }
     return font;
 }

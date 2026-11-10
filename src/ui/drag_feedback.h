@@ -6,6 +6,7 @@
 #include <string_view>
 #include <cmath>
 #include "command_icons.h"
+#include "typography.h"
 
 namespace pulse::ui {
 
@@ -30,7 +31,7 @@ inline DragFeedbackLayout LayoutDragFeedback(IDWriteFactory* factory, std::wstri
     auto make = [&](std::wstring_view value, float size, auto& layout, float& width) {
         auto& format = size >= 12 ? cached.label : cached.hint;
         if (!format) {
-            if (FAILED(factory->CreateTextFormat(L"Segoe UI Variable Text", nullptr, DWRITE_FONT_WEIGHT_NORMAL,
+            if (FAILED(factory->CreateTextFormat(typography::PreferredTextFamily(), nullptr, DWRITE_FONT_WEIGHT_NORMAL,
                 DWRITE_FONT_STYLE_NORMAL, DWRITE_FONT_STRETCH_NORMAL, size * scale, L"", &format))) return;
             format->SetWordWrapping(DWRITE_WORD_WRAPPING_NO_WRAP);
             format->SetParagraphAlignment(DWRITE_PARAGRAPH_ALIGNMENT_CENTER);

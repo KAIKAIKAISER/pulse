@@ -5150,6 +5150,16 @@ enum class StringId : UINT {
     SetupEndRetry = IDS_SETUP_END_RETRY,
     SetupEndConfirm = IDS_SETUP_END_CONFIRM,
     SetupEndFailed = IDS_SETUP_END_FAILED,
+    SettingsUiFont = IDS_SETTINGS_UI_FONT,
+    SettingsUiFontDesc = IDS_SETTINGS_UI_FONT_DESC,
+    SettingsUiFontDefault = IDS_SETTINGS_UI_FONT_DEFAULT,
+    UiFontSegoe = IDS_UI_FONT_SEGOE,
+    UiFontDengXian = IDS_UI_FONT_DENGXIAN,
+    UiFontSimHei = IDS_UI_FONT_SIMHEI,
+    UiFontSimSun = IDS_UI_FONT_SIMSUN,
+    UiFontKaiTi = IDS_UI_FONT_KAITI,
+    UiFontFangSong = IDS_UI_FONT_FANGSONG,
+    UiFontCascadia = IDS_UI_FONT_CASCADIA,
 };
 
 bool IsLanguageId(std::wstring_view id) noexcept;

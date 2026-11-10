@@ -105,6 +105,7 @@ void AppPrefs::ResetToDefaults() {
     home_folder.clear();
     text_render = 0;
     ui_font_scale = 100;
+    ui_font_family.clear();
     folder_views.Clear();
     folder_sorts.Clear();
     folder_groups.Clear();
@@ -307,6 +308,9 @@ std::wstring AppPrefs::ToJson() const {
     out += std::to_wstring(text_render >= 0 && text_render <= 2 ? text_render : 0);
     out += L",\n  \"ui_font_scale\":";
     out += std::to_wstring(NormalizeUiFontScale(ui_font_scale));
+    out += L",\n  \"ui_font_family\":\"";
+    out += pulse::json::Escape(ui_font_family);
+    out += L"\"";
     out += L",\n  \"show_hidden_files\":";
     out += show_hidden_files ? L"true" : L"false";
     out += L",\n  \"show_file_extensions\":";
@@ -623,6 +627,7 @@ bool AppPrefs::FromJson(const std::wstring& json) {
     text_render = pulse::json::ExtractInt(json, L"text_render", 0);
     if (text_render < 0 || text_render > 2) text_render = 0;
     ui_font_scale = NormalizeUiFontScale(pulse::json::ExtractInt(json, L"ui_font_scale", 100));
+    ui_font_family = pulse::json::ExtractString(json, L"ui_font_family");
     search_pinyin = pulse::json::ExtractBool(json, L"search_pinyin", true);
     search_enabled = pulse::json::ExtractBool(json, L"search_enabled", true);
     global_search_enabled = pulse::json::ExtractBool(json, L"global_search_enabled", false);

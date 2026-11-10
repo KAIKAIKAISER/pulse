@@ -586,14 +586,14 @@ struct LumaTextRenderer::Impl {
         }
 
         // Faces are picked per grapheme: nearest weight first, then cascade
-        // order, so Latin lands on Segoe and CJK on PingFang / YaHei.
+        // order, prioritizing Windows built-in Simplified Chinese font (YaHei).
         std::vector<lt_font_cascade_entry> entries;
         const auto push_weight = [&](std::uint16_t weight, const LumaText::FontFace& segoe,
                                      const LumaText::FontFace& pingfang,
                                      const LumaText::FontFace& yahei) {
+            PushFace(entries, yahei, weight);
             PushFace(entries, segoe, weight);
             PushFace(entries, pingfang, weight);
-            PushFace(entries, yahei, weight);
         };
         push_weight(400, segoe_regular, pingfang_regular, yahei_regular);
         push_weight(600, segoe_semibold ? segoe_semibold : segoe_bold, pingfang_semibold, yahei_bold);

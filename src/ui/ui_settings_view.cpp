@@ -1412,6 +1412,7 @@ D2D1_RECT_F MainRenderer::SettingsDropdownBounds(const WindowViewModel& vm, int 
     if(index==4) return l.assistant.voice_service;
     if(index==5) return l.assistant.voice_model;
     if(index==6) return l.assistant.voice_mic;
+    if(index==7) return l.ui_font_choice;
     return index==0 ? l.effect_choice : index==2 ? l.pack_dl_choice : l.language_choice;
 }
 
@@ -1481,6 +1482,7 @@ float MainRenderer::SettingsDestinationOffset(const WindowViewModel& vm, int set
     case I::SyncSvn: target=l.sync_row[1];break;
     case I::SettingsFolderSort: target=l.folder_sort_card;break;
     case I::SettingsTextRender: target=l.text_render_card;break;
+    case I::SettingsUiFont: target=l.ui_font_card;break;
     case I::SettingsUiFontSize: target=l.ui_font_size_card;break;
     case I::SettingsWallpaper: target=l.wallpaper_card;break;
     case I::SettingsWallpaperLook: target=l.wallpaper_look_card;break;

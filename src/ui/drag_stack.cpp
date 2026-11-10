@@ -453,7 +453,7 @@ bool DragStack::InitSurface() {
     const RECT rc{0, 0, win_w_, win_h_};
     if (FAILED(rt_->BindDC(mem_dc_, &rc))) return false;
 
-    const wchar_t* ui_font = L"Segoe UI";
+    const wchar_t* ui_font = typography::PreferredTextFamily();
     if (FAILED(dw_->CreateTextFormat(ui_font, nullptr, DWRITE_FONT_WEIGHT_NORMAL,
                                      DWRITE_FONT_STYLE_NORMAL, DWRITE_FONT_STRETCH_NORMAL,
                                      12.5f * s_, L"", name_fmt_.Put())))

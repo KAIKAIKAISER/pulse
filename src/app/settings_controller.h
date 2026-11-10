@@ -284,6 +284,7 @@ public:
     void HomeFolder(int action);
     void TextRendering(int index);
     void UiFontSize(int index);   // 0 small 90%, 1 default 100%, 2 large 112%, 3 larger 125%
+    void UiFontFamily(const std::wstring& font_name);
     void TrayIconSize(int index);
     void DoubleCtrlGap(int index);   // 连按间隔: 200 / 300 / 400 ms
     // Settings sliders: 0 interface transparency (0..90), 1 wallpaper blur (0..40),

@@ -126,6 +126,7 @@ struct AppPrefs {
     int text_render = 0;
     // Interface font size in percent of the built-in sizes: 90 / 100 / 112 / 125.
     int ui_font_scale = 100;
+    std::wstring ui_font_family;
     FolderViewPrefs folder_views;
     FolderSortPrefs folder_sorts;
     FolderGroupPrefs folder_groups;

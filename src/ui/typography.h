@@ -30,6 +30,8 @@ struct TextFormatSpec {
 const wchar_t* LocaleName() noexcept;
 bool HasIconFont(IDWriteFactory2* factory);
 const wchar_t* PreferredTextFamily() noexcept;
+void SetPreferredFontFamily(std::wstring_view family) noexcept;
+std::wstring PreferredFontFamilyName() noexcept;
 HRESULT CreateTextFormat(IDWriteFactory2* factory, const TextFormatSpec& spec,
                          IDWriteTextFormat** format);
 HRESULT CreateRenderingParams(IDWriteFactory2* factory, HMONITOR monitor,

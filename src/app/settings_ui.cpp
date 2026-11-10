@@ -66,7 +66,7 @@ constexpr SettingDestination destinations[]={
     // 0 外观
     {I::SettingsTheme,0,0},{I::SettingsThemeColor,0,0},{I::AccentCustomTitle,0,32},{I::SettingsWindowEffect,0,0},{I::SettingsFrameLook,0,0},{I::MenuAcrylic,0,0},
     {I::SettingsWallpaper,0,0},{I::SettingsWallpaperLook,0,0},{I::SettingsWallpaperBlur,0,0},
-    {I::SettingsLanguage,0,0},{I::SettingsTextRender,0,0},{I::SettingsUiFontSize,0,0},
+    {I::SettingsLanguage,0,0},{I::SettingsUiFont,0,0},{I::SettingsTextRender,0,0},{I::SettingsUiFontSize,0,0},
     {I::NativeExtensionSettingsTitle,ui::kSettingsPageNativeExtensions,0},
     // 9 文件列表
     {I::SettingsClickOpen,9,0},{I::SettingsItemCheckboxes,9,0},{I::SettingsBlankClickBack,9,0},
@@ -123,6 +123,7 @@ std::vector<ui::FluentMenuItem> FilterSettings(const std::wstring& query) {
         case I::SettingsWallpaperBlur: haystack += L" " + l10n::Get(I::SettingsWallpaperBlurDesc); break;
         case I::SettingsLanguage: haystack += L" " + l10n::Get(I::SettingsLanguageDesc); break;
         case I::SettingsTextRender: haystack += L" " + l10n::Get(I::SettingsTextRenderDesc); break;
+        case I::SettingsUiFont: haystack += L" " + l10n::Get(I::SettingsUiFontDesc); break;
         case I::SettingsUiFontSize: haystack += L" " + l10n::Get(I::SettingsUiFontSizeDesc); break;
         case I::SettingsClickOpen: haystack += L" " + l10n::Get(I::SettingsClickOpenDesc); break;
         case I::SettingsItemCheckboxes: haystack += L" " + l10n::Get(I::SettingsItemCheckboxesDesc); break;
@@ -659,6 +660,23 @@ bool HandleSettingsControl(AppState& s,const H& hit) {
                 item.enabled=ui::WindowEffectSupported(static_cast<ui::WindowEffect>(i));items.push_back(std::move(item));
             }
             int command=Dropdown(s,hit.index,std::move(items));if(command>=1 && command<=ui::kWindowEffectCount) s.settings.WindowEffect(ui::WindowEffectId(static_cast<ui::WindowEffect>(command-1)));
+        } else if(hit.index==7) {
+            const I labels[] = {
+                I::SettingsUiFontDefault, I::UiFontSegoe, I::UiFontDengXian, I::UiFontSimHei,
+                I::UiFontSimSun, I::UiFontKaiTi, I::UiFontFangSong, I::UiFontCascadia
+            };
+            const wchar_t* ids[] = {
+                L"default", L"Segoe UI", L"DengXian", L"SimHei",
+                L"SimSun", L"KaiTi", L"FangSong", L"Cascadia Mono"
+            };
+            constexpr int count = static_cast<int>(std::size(ids));
+            const std::wstring current = s.appPrefs.ui_font_family.empty() ? L"default" : s.appPrefs.ui_font_family;
+            for(int i=0;i<count;++i) {
+                const bool selected = (current == ids[i]) || (i == 0 && (current == L"default" || current == L"Microsoft YaHei UI" || current.empty()));
+                items.push_back(Item(i+1,labels[i],selected));
+            }
+            int command=Dropdown(s,hit.index,std::move(items));
+            if(command>=1 && command<=count) s.settings.UiFontFamily(command==1 ? L"" : ids[command-1]);
         } else {
             const I labels[]={I::LanguageSystem,I::LanguageZhCN,I::LanguageZhTW,I::LanguageEnUS};const wchar_t* ids[]={L"system",L"zh-CN",L"zh-TW",L"en-US"};
             constexpr int count=static_cast<int>(std::size(ids));

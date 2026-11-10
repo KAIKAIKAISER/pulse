@@ -186,6 +186,7 @@ float LayoutSettingsGeneral(SettingsLayout& l, const WindowViewModel& vm, float 
 
         section(I::SettingsSecTextLanguage);
         l.language_card=row(seg_h); l.language_choice=choice(l.language_card,176);
+        l.ui_font_card=row(seg_h); l.ui_font_choice=choice(l.ui_font_card,210);
         l.text_render_card=row(seg_h); fitted_segments(l.text_render_card,l.text_render_row,{I::TextRenderAuto,I::TextRenderSharp,I::TextRenderSmooth});
         l.ui_font_size_card=row(seg_h); fitted_segments(l.ui_font_size_card,l.ui_font_size_row,{I::UiFontSmall,I::UiFontDefault,I::UiFontLarge,I::UiFontLarger});
     } else if (page == 9) {

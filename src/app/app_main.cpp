@@ -1715,6 +1715,7 @@ LRESULT CALLBACK WndProcImpl(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) 
                 s->update_result.installer_sha256 =
                     L"0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef";
             }
+            ui::typography::SetPreferredFontFamily(s->appPrefs.ui_font_family);
             ui::typography::SetUiFontScale(s->appPrefs.ui_font_scale);
             ui::typography::InvalidateCaches();
         }
