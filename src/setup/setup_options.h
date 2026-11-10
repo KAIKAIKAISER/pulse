@@ -14,7 +14,7 @@ namespace pulse::setup {
 struct Tasks {
     bool index_service = true;
     bool global_search = true;
-    bool ai_assistant = true;
+    bool ai_assistant = false;
     bool startup = false;
     bool desktop_icon = false;
 };

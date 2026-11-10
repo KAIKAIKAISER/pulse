@@ -126,7 +126,7 @@ int main(int argc, char** argv) {
         const size_t slash = ini.find_last_of(L"\\/");
         ini.resize(slash == std::wstring::npos ? 0 : slash + 1);
         ini += L"setup-defaults.ini";
-        const bool expected_enabled = GetPrivateProfileIntW(L"features", L"ai_assistant", 1, ini.c_str()) != 0;
+        const bool expected_enabled = GetPrivateProfileIntW(L"features", L"ai_assistant", 0, ini.c_str()) != 0;
         bool missing_malformed = true;
         Check(LoadSettings(&missing_malformed).enabled == expected_enabled && !missing_malformed,
               "missing ai.json reads install assistant default (enabled when absent)");

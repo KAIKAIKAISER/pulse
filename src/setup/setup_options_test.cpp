@@ -5,7 +5,7 @@ int main() {
     int failures = 0;
     auto check = [&](bool ok, const char* name) { std::printf("[%s] %s\n", ok ? "PASS" : "FAIL", name); if (!ok) ++failures; };
     Tasks t;
-    check(t.global_search && t.ai_assistant, "feature defaults");
+    check(t.global_search && !t.ai_assistant, "feature defaults");
     ApplyTaskList(L"globalsearch,!aiassistant,startup", t, true);
     check(t.global_search && !t.ai_assistant && t.startup && !t.index_service && !t.desktop_icon, "replace tasks");
     ApplyTaskList(L"!globalsearch,AIASSISTANT", t, false);
@@ -19,7 +19,7 @@ int main() {
     ApplyTaskList(*options.merge_tasks, parsed, false);
     check(!parsed.global_search && parsed.ai_assistant && !parsed.index_service, "command line");
     ApplyRememberedTaskList(L"indexservice,startup", t);
-    check(t.global_search && t.ai_assistant && t.startup, "legacy remembered tasks");
+    check(t.global_search && !t.ai_assistant && t.startup, "legacy remembered tasks");
     ApplyRememberedTaskList(L"indexservice,!globalsearch,!aiassistant", t);
     check(!t.global_search && !t.ai_assistant, "remember explicit feature opt out");
     ApplyTaskList(L"indexservice", t, true);

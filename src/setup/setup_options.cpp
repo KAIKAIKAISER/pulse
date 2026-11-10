@@ -94,7 +94,7 @@ void ApplyRememberedTaskList(const std::wstring& list, Tasks& tasks) {
         if (!item.empty() && item[0] == L'!') item.erase(0, 1);
         feature_tokens |= EqualsNoCase(item, L"globalsearch") || EqualsNoCase(item, L"aiassistant");
     }
-    if (!feature_tokens) tasks.global_search = tasks.ai_assistant = true;
+    if (!feature_tokens) { tasks.global_search = true; tasks.ai_assistant = false; }
 }
 
 std::wstring FormatTaskList(const Tasks& tasks) {

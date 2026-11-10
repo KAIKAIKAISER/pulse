@@ -113,7 +113,7 @@ Settings ParseSettings(std::string_view utf8, bool* malformed) {
         return s;
     }
     if (malformed) *malformed = false;
-    s.enabled = root.get_bool("enabled", true);
+    s.enabled = root.get_bool("enabled", false);
     s.mcp_enabled = root.get_bool("mcp_enabled", false);
     if (const auto* days = root.find("log_days")) {
         int64_t n = 0;
@@ -215,7 +215,7 @@ Settings LoadSettings(bool* malformed) {
             if (slash != std::wstring::npos) {
                 ini.resize(slash + 1);
                 ini += L"setup-defaults.ini";
-                defaults.enabled = GetPrivateProfileIntW(L"features", L"ai_assistant", 1, ini.c_str()) != 0;
+                defaults.enabled = GetPrivateProfileIntW(L"features", L"ai_assistant", 0, ini.c_str()) != 0;
             }
         }
         return defaults;
@@ -230,7 +230,7 @@ Settings LoadSettings(bool* malformed) {
 
 std::string SerializeSettings(const Settings& s) {
     json::Value root = json::Value::Object();
-    if (!s.enabled) root.set("enabled", false);
+    root.set("enabled", s.enabled);
     root.set("mcp_enabled", s.mcp_enabled);
     root.set("log_days", s.log_days);
     json::Value clients = json::Value::Array();
