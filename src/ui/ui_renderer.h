@@ -1099,7 +1099,7 @@ private:
     std::unordered_map<ID2D1Bitmap*, ComPtr<ID2D1Effect>> tray_shadows_;
     ThumbnailCache& thumbnail_cache_ = caches_.thumbnails;
     FolderThumbnailCache& folder_thumbnail_cache_ = caches_.folder_thumbnails;
-    bool folder_thumbnails_enabled_ = true;
+    bool folder_thumbnails_enabled_ = false;
     ThumbnailCache& details_cache_ = caches_.details;
     ThumbnailCache& hover_cache_ = caches_.hover;
     HWND notify_hwnd_ = nullptr;
